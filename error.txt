@@ -1,0 +1,20 @@
+
+  Dropping all tables ............... 422.89ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table ........... 68.49ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  136.21ms DONE
+  0001_01_01_000001_create_cache_table  208.71ms DONE
+  0001_01_01_000002_create_jobs_table  166.97ms DONE
+  2026_02_23_024908_create_permission_tables  492.89ms DONE
+  2026_02_23_095841_create_customers_table  91.47ms DONE
+  2026_02_23_095842_create_services_table  136.31ms DONE
+  2026_02_23_095843_create_invoices_table  173.60ms DONE
+  2026_02_23_095844_create_payments_table  267.21ms DONE
+  2026_02_23_110910_create_personal_access_tokens_table  97.17ms DONE
+  2026_02_23_131059_add_email_to_customers_table  27.35ms DONE
+
