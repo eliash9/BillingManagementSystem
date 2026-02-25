@@ -22,6 +22,7 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             'manage users',
             'manage roles',
+            'manage settings',
             'manage customers',
             'manage services',
             'manage invoices',
@@ -42,7 +43,7 @@ class RolePermissionSeeder extends Seeder
         $roleSuperAdmin->givePermissionTo(Permission::all());
 
         $roleAdmin = Role::firstOrCreate(['name' => 'Admin']);
-        $roleAdmin->givePermissionTo(['manage customers', 'manage services', 'manage invoices', 'manage payments', 'view customers', 'view services', 'view invoices', 'view payments']);
+        $roleAdmin->givePermissionTo(['manage settings', 'manage customers', 'manage services', 'manage invoices', 'manage payments', 'view customers', 'view services', 'view invoices', 'view payments']);
 
         $roleFinance = Role::firstOrCreate(['name' => 'Finance']);
         $roleFinance->givePermissionTo(['manage invoices', 'manage payments', 'view invoices', 'view payments']);

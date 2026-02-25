@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="bg-gray-50 h-full">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>Billing Portal - {{ $service->name }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+
+<body class="font-sans antialiased text-gray-900 min-h-full flex flex-col">
+
+    <div class="flex-grow">
+        <header class="bg-white border-b border-gray-200">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span
+                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">Billing
+                        Portal</span>
+                </div>
+                <div class="text-sm text-gray-500 font-medium">Ditagihkan ke: <span
+                        class="text-gray-900">{{ $service->customer->company ?? $service->customer->name }}</span></div>
+            </div>
+        </header>
+
+        <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+            <!-- Service Summary Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+                <div class="absolute top-0 right-0 p-6">
+                    @if($service->status->value === 'active' || $service->status === 'active')
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 ring-1 ring-inset ring-green-600/20">Aktif</span>
+                    @elseif($service->status->value === 'suspended' || $service->status === 'suspended')
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800 ring-1 ring-inset ring-red-600/20">Ditangguhkan</span>
+                    @elseif($service->status->value === 'due' || $service->status === 'due')
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-orange-100 text-orange-800 ring-1 ring-inset ring-orange-600/20">Jatuh
+                            Tempo</span>
+                    @else
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-800">{{ ucfirst($service->status->value ?? $service->status) }}</span>
+                    @endif
+                </div>
+
+                <div class="p-8">
+                    <h2 class="text-base font-semibold tracking-wide text-gray-500 uppercase mb-1">Detail Layanan</h2>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ $service->name }}</h3>
+
+                    <dl class="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
+                        <div class="border-t border-gray-200 pt-4">
+                            <dt class="font-medium text-gray-500 text-sm">Tarif</dt>
+                            <dd class="mt-2 text-xl font-bold tracking-tight text-gray-900">Rp
+                                {{ number_format($service->price, 0, ',', '.') }} <span
+                                    class="text-base font-normal text-gray-500">/
+                                    {{ strtolower($service->billing_cycle->value ?? $service->billing_cycle) }}</span>
+                            </dd>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4">
+                            <dt class="font-medium text-gray-500 text-sm">Tanggal Perpanjangan Berikutnya</dt>
+                            <dd
+                                class="mt-2 text-xl font-bold tracking-tight {{ $service->next_due_date && $service->next_due_date->isPast() ? 'text-red-600' : 'text-gray-900' }}">
+                                {{ $service->next_due_date ? $service->next_due_date->format('F d, Y') : 'N/A' }}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Invoices List -->
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z">
+                        </path>
+                    </svg>
+                    Riwayat Tagihan
+                </h3>
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left whitespace-nowrap">
+                            <thead
+                                class="bg-gray-50 text-gray-500 text-xs font-semibold uppercase tracking-wider border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-4">No Tagihan</th>
+                                    <th class="px-6 py-4">Tgl Terbit</th>
+                                    <th class="px-6 py-4">Tgl Jatuh Tempo</th>
+                                    <th class="px-6 py-4 text-right">Jumlah</th>
+                                    <th class="px-6 py-4 text-center">Status</th>
+                                    <th class="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm">
+                                @forelse($service->invoices as $inv)
+                                    <tr
+                                        class="hover:bg-gray-50 transition-colors {{ ($inv->status->value === 'unpaid' || $inv->status === 'unpaid') ? 'bg-orange-50/30' : '' }}">
+                                        <td class="px-6 py-4 font-semibold text-gray-900">
+                                            {{ $inv->invoice_number }}
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-600">{{ $inv->issue_date->format('M d, Y') }}</td>
+                                        <td
+                                            class="px-6 py-4 font-medium {{ $inv->due_date->isPast() && ($inv->status->value === 'unpaid' || $inv->status === 'unpaid') ? 'text-red-600' : 'text-gray-600' }}">
+                                            {{ $inv->due_date->format('M d, Y') }}
+                                        </td>
+                                        <td class="px-6 py-4 text-right font-bold text-gray-900">
+                                            Rp {{ number_format($inv->amount, 0, ',', '.') }}
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            @if($inv->status->value === 'paid' || $inv->status === 'paid')
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Lunas</span>
+                                            @else
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 ring-1 ring-inset ring-orange-500/20">Belum
+                                                    Bayar</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            <a href="{{ route('widget.invoice', ['token' => $service->widget_token, 'invoice' => $inv->id]) }}"
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md {{ ($inv->status->value === 'unpaid' || $inv->status === 'unpaid') ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm' }}">
+                                                @if($inv->status->value === 'unpaid' || $inv->status === 'unpaid')
+                                                    Bayar Sekarang
+                                                @else
+                                                    Lihat Kwitansi
+                                                @endif
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                            Belum ada tagihan untuk layanan ini.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto py-6">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-sm text-gray-500">
+            <div>Portal Penagihan Aman didukung oleh <span class="font-semibold text-gray-900">BillingSystem</span>
+            </div>
+            <div>&copy; {{ date('Y') }} Hak cipta dilindungi.</div>
+        </div>
+    </footer>
+</body>
+
+</html>
