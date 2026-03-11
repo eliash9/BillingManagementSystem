@@ -16,15 +16,6 @@ class Service extends Model
 
     protected $guarded = ['id'];
 
-    protected static function booted()
-    {
-        static::creating(function ($service) {
-            if (empty($service->widget_token)) {
-                $service->widget_token = \Illuminate\Support\Str::random(32);
-            }
-        });
-    }
-
     protected function casts(): array
     {
         return [
@@ -40,8 +31,8 @@ class Service extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function invoices(): HasMany
+    public function invoiceItems(): HasMany
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(InvoiceItem::class);
     }
 }

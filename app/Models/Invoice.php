@@ -24,13 +24,18 @@ class Invoice extends Model
         ];
     }
 
-    public function service(): BelongsTo
+    public function customer(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(InvoiceItem::class);
     }
 }

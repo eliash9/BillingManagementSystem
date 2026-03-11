@@ -55,6 +55,10 @@
                 <div class="p-8 sm:p-12">
                     <div class="flex justify-between items-start mb-10">
                         <div>
+                            @if(!empty($globalSettings['app_logo']))
+                                <img class="h-16 w-auto mb-4" src="{{ asset('storage/' . $globalSettings['app_logo']) }}"
+                                    alt="Logo">
+                            @endif
                             <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">INVOICE</h1>
                             <p class="text-sm text-gray-500 mt-1">Ref: <span
                                     class="font-medium text-gray-700">{{ $invoice->invoice_number }}</span></p>
@@ -71,23 +75,74 @@
                     <div class="grid grid-cols-2 gap-8 mb-10 pb-8 border-b border-gray-100">
                         <div>
                             <p class="text-sm text-gray-500 mb-1 tracking-wider uppercase font-semibold">Billed To</p>
-                            <p class="text-lg font-bold text-gray-900">{{ $invoice->service?->customer?->name }}</p>
+                            <p class="text-lg font-bold text-gray-900">
+                                {{ $invoice->customer?->company ?? $invoice->customer?->name }}</p>
                             <p class="text-sm text-gray-600 mt-1">Customer ID:
-                                #{{ str_pad($invoice->service?->customer?->id, 5, '0', STR_PAD_LEFT) }}</p>
+                                #{{ str_pad($invoice->customer?->id ?? 0, 5, '0', STR_PAD_LEFT) }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-sm text-gray-500 mb-1 tracking-wider uppercase font-semibold">Service Info
+                            <p class="text-sm text-gray-500 mb-1 tracking-wider uppercase font-semibold">Invoice Details
                             </p>
-                            <p class="text-base font-semibold text-gray-900">{{ $invoice->service?->name }}</p>
-                            <p class="text-sm text-gray-600 mt-1 capitalize">Cycle:
-                                {{ $invoice->service?->billing_cycle->value ?? $invoice->service?->billing_cycle }}</p>
+                            <p class="text-base font-semibold text-gray-900">Total Items: {{ $invoice->items->count() }}
+                            </p>
+                            <p class="text-sm text-gray-600 mt-1">Status:
+                                {{ ucfirst($invoice->status->value ?? $invoice->status) }}</p>
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center py-4 px-6 bg-gray-50 rounded-lg">
-                        <span class="text-gray-700 font-medium">Total Amount Due</span>
-                        <span class="text-2xl font-bold text-indigo-700">Rp
-                            {{ number_format($invoice->amount, 0, ',', '.') }}</span>
+                    <div class="mb-8 bg-gray-50/50 rounded-lg border border-gray-100 p-6">
+                        <table class="w-full text-left text-sm mb-4">
+                            <thead>
+                                <tr class="border-b-2 border-gray-200">
+                                    <th class="py-3 font-semibold text-gray-900 w-1/2">Item Description</th>
+                                    <th class="py-3 font-semibold text-gray-900 text-center w-1/6">Qty</th>
+                                    <th class="py-3 font-semibold text-gray-900 text-right w-1/6">Unit Price</th>
+                                    <th class="py-3 font-semibold text-gray-900 text-right w-1/6">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @forelse($invoice->items as $item)
+                                    <tr>
+                                        <td class="py-3 text-gray-700 font-medium">
+                                            {{ $item->description }}
+                                        </td>
+                                        <td class="py-3 text-center text-gray-900">
+                                            {{ rtrim(rtrim(number_format($item->quantity, 2, ',', '.'), '0'), ',') }}
+                                        </td>
+                                        <td class="py-3 text-right text-gray-900">
+                                            Rp {{ number_format($item->unit_price, 0, ',', '.') }}
+                                        </td>
+                                        <td class="py-3 text-right font-medium text-gray-900">
+                                            Rp {{ number_format($item->total, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="py-4 text-center text-gray-500 italic">No items found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                        <div class="flex justify-end pt-4 border-t-2 border-gray-200">
+                            <div class="w-1/2 md:w-1/3">
+                                <div class="flex justify-between py-2 text-sm text-gray-600">
+                                    <span>Sub Total</span>
+                                    <span class="font-medium text-gray-900">Rp
+                                        {{ number_format($invoice->subtotal, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex justify-between py-2 text-sm text-gray-600">
+                                    <span>Tax ({{ rtrim(rtrim($invoice->tax_rate, '0'), '.') }}%)</span>
+                                    <span class="font-medium text-gray-900">Rp
+                                        {{ number_format($invoice->tax_amount, 0, ',', '.') }}</span>
+                                </div>
+                                <div
+                                    class="flex justify-between py-4 text-base font-bold text-gray-900 border-t border-gray-200 mt-2">
+                                    <span class="uppercase tracking-wider">Total Amount Due</span>
+                                    <span class="text-indigo-700 text-lg">Rp
+                                        {{ number_format($invoice->amount, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -189,33 +244,71 @@
                                     Status</th>
                                 <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                     Verified By</th>
+                                <th class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @forelse ($invoice->payments as $payment)
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="py-4 px-6 text-sm text-gray-700">
-                                        {{ $payment->created_at->format('M d, Y H:i') }}</td>
+                                        {{ $payment->created_at->format('M d, Y H:i') }}
+                                    </td>
                                     <td class="py-4 px-6 text-sm font-medium text-gray-900">Rp
-                                        {{ number_format($payment->amount, 0, ',', '.') }}</td>
+                                        {{ number_format($payment->amount, 0, ',', '.') }}
+                                    </td>
                                     <td class="py-4 px-6 text-sm text-gray-500">
-                                        {{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}</td>
+                                        {{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}
+                                    </td>
                                     <td class="py-4 px-6">
                                         @if($payment->status->value === 'verified' || $payment->status === 'verified')
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Verified</span>
+                                        @elseif($payment->status->value === 'failed' || $payment->status === 'failed')
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Rejected</span>
                                         @else
                                             <span
-                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($payment->status->value ?? $payment->status) }}</span>
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ ucfirst($payment->status->value ?? $payment->status) }}</span>
                                         @endif
                                     </td>
-                                    <td class="py-4 px-6 text-sm text-gray-500">{{ $payment->verifier?->name ?? 'System' }}
+                                    <td class="py-4 px-6 text-sm text-gray-500 text-center">
+                                        {{ $payment->verifier?->name ?? '-' }}
+                                    </td>
+                                    <td class="py-4 px-6 text-sm">
+                                        <div class="flex items-center gap-2">
+                                            @if($payment->proof_path)
+                                                <a href="{{ asset('storage/' . $payment->proof_path) }}" target="_blank"
+                                                    class="inline-flex items-center px-2 py-1 bg-white border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-gray-50 transition shadow-sm">
+                                                    Lihat Bukti
+                                                </a>
+                                            @endif
+
+                                            @if($payment->status->value === 'pending' || $payment->status === 'pending')
+                                                <form action="{{ route('invoices.payments.verify', [$invoice->id, $payment->id]) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" 
+                                                        class="inline-flex items-center px-2 py-1 bg-emerald-600 border border-transparent rounded text-xs font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
+                                                        onclick="return confirm('Verifikasi pembayaran ini?')">
+                                                        Verif
+                                                    </button>
+                                                </form>
+                                                <form action="{{ route('invoices.payments.reject', [$invoice->id, $payment->id]) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" 
+                                                        class="inline-flex items-center px-2 py-1 bg-white border border-red-300 rounded text-xs font-semibold text-red-600 hover:bg-red-50 transition shadow-sm"
+                                                        onclick="return confirm('Tolak pembayaran ini?')">
+                                                        Tolak
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-8 px-6 text-center text-gray-400">
-                                        No payment logs found for this invoice.
+                                    <td colspan="6" class="py-8 px-6 text-center text-gray-400">
+                                        Belum ada history pembayaran.
                                     </td>
                                 </tr>
                             @endforelse

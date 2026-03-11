@@ -73,9 +73,10 @@
                                         Status</label>
                                     <select id="status" name="status"
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="active" {{ old('status', $customer->status) === 'active' ? 'selected' : '' }}>Active</option>
-                                        <option value="inactive" {{ old('status', $customer->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                    </select>
+                                         <option value="active" {{ old('status', $customer->status->value ?? $customer->status) == 'active' ? 'selected' : '' }}>Active</option>
+                                         <option value="suspended" {{ old('status', $customer->status->value ?? $customer->status) == 'suspended' ? 'selected' : '' }}>Suspended</option>
+                                         <option value="inactive" {{ old('status', $customer->status->value ?? $customer->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                     </select>
                                     @error('status') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                                 </div>
 

@@ -150,7 +150,7 @@
 
                                             <!-- Embed Widget Button -->
                                             <button type="button"
-                                                onclick="prompt('Salin dan Tempel Kode JavaScript (Snippet) ini sebelum tag </body> di website pelanggan Anda:', '<script src=\'{{ route('widget.script', ['token' => $service->widget_token]) }}\' defer></script>')"
+                                                onclick="prompt('Salin dan Tempel Kode JavaScript (Snippet) ini sebelum tag </body> di website pelanggan Anda:', '<script src=\'{{ route('widget.script', ['token' => $service->customer?->widget_token]) }}\' defer></script>')"
                                                 class="text-sm font-medium text-gray-600 hover:text-gray-900 bg-white border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-md transition duration-150 flex items-center gap-1"
                                                 title="Ambil Kode Widget untuk Pelanggan">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +159,7 @@
                                                 </svg>
                                                 Widget
                                             </button>
-                                            <a href="{{ route('widget.portal', ['token' => $service->widget_token]) }}"
+                                            <a href="{{ route('widget.portal', ['token' => $service->customer?->widget_token]) }}"
                                                 target="_blank"
                                                 class="text-xs text-indigo-500 hover:text-indigo-700 underline"
                                                 title="Preview Portal">Lihat Portal</a>

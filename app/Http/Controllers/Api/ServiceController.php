@@ -41,6 +41,6 @@ class ServiceController extends Controller
      */
     public function show(Service $service)
     {
-        return response()->json($service->load('customer', 'invoices'));
+        return response()->json($service->load('customer', 'invoiceItems.invoice'));
     }
 }

@@ -1,8 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Invoices') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Invoices') }}
+            </h2>
+            <a href="{{ route('invoices.create') }}"
+                class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-700 shadow-sm text-sm">
+                + Buat Tagihan Custom
+            </a>
+        </div>
     </x-slot>
 
     <div class="py-12">
@@ -104,10 +110,11 @@
                                     <td class="px-6 py-4">
                                         <div class="text-sm font-medium text-gray-900">{{ $invoice->invoice_number }}</div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-500">{{ $invoice->service?->customer?->name }}
+                                    <td class="px-6 py-4 text-sm text-gray-500">{{ $invoice->customer?->name }}
                                     </td>
                                     <td class="px-6 py-4 text-sm font-medium text-gray-900">Rp
-                                        {{ number_format($invoice->amount, 0, ',', '.') }}</td>
+                                        {{ number_format($invoice->amount, 0, ',', '.') }}
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-gray-500">{{ $invoice->issue_date->format('M d, Y') }}
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-500">{{ $invoice->due_date->format('M d, Y') }}

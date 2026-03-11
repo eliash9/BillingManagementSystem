@@ -5,8 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>Billing Portal - {{ $service->name }}</title>
+    <title>Billing Portal - {{ $customer->company ?? $customer->name }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -31,52 +30,52 @@
                         Portal</span>
                 </div>
                 <div class="text-sm text-gray-500 font-medium">Ditagihkan ke: <span
-                        class="text-gray-900">{{ $service->customer->company ?? $service->customer->name }}</span></div>
+                        class="text-gray-900">{{ $customer->company ?? $customer->name }}</span></div>
             </div>
         </header>
 
         <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-            <!-- Service Summary Card -->
+            <!-- Customer Summary Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-                <div class="absolute top-0 right-0 p-6">
-                    @if($service->status->value === 'active' || $service->status === 'active')
-                        <span
-                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 ring-1 ring-inset ring-green-600/20">Aktif</span>
-                    @elseif($service->status->value === 'suspended' || $service->status === 'suspended')
-                        <span
-                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800 ring-1 ring-inset ring-red-600/20">Ditangguhkan</span>
-                    @elseif($service->status->value === 'due' || $service->status === 'due')
-                        <span
-                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-orange-100 text-orange-800 ring-1 ring-inset ring-orange-600/20">Jatuh
-                            Tempo</span>
-                    @else
-                        <span
-                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-800">{{ ucfirst($service->status->value ?? $service->status) }}</span>
-                    @endif
-                </div>
-
                 <div class="p-8">
-                    <h2 class="text-base font-semibold tracking-wide text-gray-500 uppercase mb-1">Detail Layanan</h2>
-                    <h3 class="text-3xl font-bold text-gray-900">{{ $service->name }}</h3>
+                    <h2 class="text-base font-semibold tracking-wide text-gray-500 uppercase mb-1">Detail Pelanggan</h2>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ $customer->company ?? $customer->name }}</h3>
+                    @if($customer->address)
+                        <p class="mt-2 text-gray-600">{{ $customer->address }}</p>
+                    @endif
 
-                    <dl class="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
-                        <div class="border-t border-gray-200 pt-4">
-                            <dt class="font-medium text-gray-500 text-sm">Tarif</dt>
-                            <dd class="mt-2 text-xl font-bold tracking-tight text-gray-900">Rp
-                                {{ number_format($service->price, 0, ',', '.') }} <span
-                                    class="text-base font-normal text-gray-500">/
-                                    {{ strtolower($service->billing_cycle->value ?? $service->billing_cycle) }}</span>
-                            </dd>
+                    <div class="mt-8 border-t border-gray-200 pt-6">
+                        <h4 class="text-sm font-semibold tracking-wide text-gray-500 uppercase mb-4">Layanan Anda</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach($customer->services as $svc)
+                                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h5 class="font-bold text-gray-900">{{ $svc->name }}</h5>
+                                        @if($svc->status->value === 'active' || $svc->status === 'active')
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Aktif</span>
+                                        @elseif($svc->status->value === 'suspended' || $svc->status === 'suspended')
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Ditangguhkan</span>
+                                        @elseif($svc->status->value === 'due' || $svc->status === 'due')
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">Jatuh
+                                                Tempo</span>
+                                        @else
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($svc->status->value ?? $svc->status) }}</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm border-b border-gray-200 pb-2 mb-2">Rp
+                                        {{ number_format($svc->price, 0, ',', '.') }} /
+                                        {{ strtolower($svc->billing_cycle->value ?? $svc->billing_cycle) }}</p>
+                                    <p class="text-xs text-gray-500">Perpanjangan:
+                                        {{ $svc->next_due_date ? $svc->next_due_date->format('d M Y') : 'N/A' }}</p>
+                                </div>
+                            @endforeach
                         </div>
-                        <div class="border-t border-gray-200 pt-4">
-                            <dt class="font-medium text-gray-500 text-sm">Tanggal Perpanjangan Berikutnya</dt>
-                            <dd
-                                class="mt-2 text-xl font-bold tracking-tight {{ $service->next_due_date && $service->next_due_date->isPast() ? 'text-red-600' : 'text-gray-900' }}">
-                                {{ $service->next_due_date ? $service->next_due_date->format('F d, Y') : 'N/A' }}
-                            </dd>
-                        </div>
-                    </dl>
+                    </div>
                 </div>
             </div>
 
@@ -106,7 +105,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
-                                @forelse($service->invoices as $inv)
+                                @forelse($customer->invoices as $inv)
                                     <tr
                                         class="hover:bg-gray-50 transition-colors {{ ($inv->status->value === 'unpaid' || $inv->status === 'unpaid') ? 'bg-orange-50/30' : '' }}">
                                         <td class="px-6 py-4 font-semibold text-gray-900">
@@ -131,7 +130,7 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            <a href="{{ route('widget.invoice', ['token' => $service->widget_token, 'invoice' => $inv->id]) }}"
+                                            <a href="{{ route('widget.invoice', ['token' => $customer->widget_token, 'invoice' => $inv->id]) }}"
                                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md {{ ($inv->status->value === 'unpaid' || $inv->status === 'unpaid') ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm' }}">
                                                 @if($inv->status->value === 'unpaid' || $inv->status === 'unpaid')
                                                     Bayar Sekarang
@@ -144,7 +143,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                                            Belum ada tagihan untuk layanan ini.
+                                            Belum ada tagihan untuk Anda.
                                         </td>
                                     </tr>
                                 @endforelse

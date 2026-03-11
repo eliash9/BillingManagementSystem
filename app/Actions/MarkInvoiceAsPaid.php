@@ -42,10 +42,15 @@ class MarkInvoiceAsPaid
             if ($payment->status === PaymentStatus::Verified) {
                 $invoice->update(['status' => InvoiceStatus::Paid]);
 
-                // Activate service if it was suspended or due
-                $service = $invoice->service;
-                if ($service && in_array($service->status, [ServiceStatus::Suspended, ServiceStatus::Due, ServiceStatus::Overdue], true)) {
-                    $this->activateService->execute($service);
+                // Activate services if they were suspended or due
+                $serviceIds = $invoice->items()->pluck('service_id')->filter();
+                $services = \App\Models\Service::whereIn('id', $serviceIds)->get();
+
+                foreach ($services as $service) {
+                    /** @var \App\Models\Service $service */
+                    if (in_array($service->status, [ServiceStatus::Suspended, ServiceStatus::Due, ServiceStatus::Overdue], true)) {
+                        $this->activateService->execute($service);
+                    }
                 }
 
                 event(new \App\Events\InvoicePaid($invoice));

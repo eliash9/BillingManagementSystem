@@ -19,6 +19,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Share settings globally
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                $globalSettings = \App\Models\Setting::pluck('value', 'key')->toArray();
+                \Illuminate\Support\Facades\View::share('globalSettings', $globalSettings);
+            }
+        } catch (\Exception $e) {
+            // Table might not exist yet during migration
+        }
+
         \Illuminate\Support\Facades\Event::listen(
             \App\Events\InvoiceCreated::class,
             [\App\Listeners\SendEmailNotification::class, 'handle']

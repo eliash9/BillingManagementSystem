@@ -46,7 +46,7 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:20',
             'company' => 'nullable|string|max:255',
             'address' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,inactive,suspended',
         ]);
 
         Customer::create($validated);
@@ -78,7 +78,7 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:20',
             'company' => 'nullable|string|max:255',
             'address' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,inactive,suspended',
         ]);
 
         $customer->update($validated);

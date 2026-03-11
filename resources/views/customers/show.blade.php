@@ -92,12 +92,13 @@
                                 <div class="sm:col-span-1">
                                     <dt class="text-xs font-medium text-gray-500">Status</dt>
                                     <dd class="mt-1">
-                                        @if($customer->status === 'active')
-                                            <span
-                                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                        @php $status = $customer->status->value ?? $customer->status; @endphp
+                                        @if($status === 'active')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                        @elseif($status === 'suspended')
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">Suspended</span>
                                         @else
-                                            <span
-                                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Inactive</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Inactive</span>
                                         @endif
                                     </dd>
                                 </div>

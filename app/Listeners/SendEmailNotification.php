@@ -10,6 +10,11 @@ use App\Events\InvoiceOverdueReminderNeeded;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InvoiceNotificationMail;
+use App\Mail\InvoiceReminderMail;
+use App\Mail\InvoiceOverdueMail;
+
 class SendEmailNotification implements ShouldQueue
 {
     /**
@@ -17,20 +22,25 @@ class SendEmailNotification implements ShouldQueue
      */
     public function handle(object $event): void
     {
-        // $event->invoice or $event->service will be available depending on the event class.
-        // E.g., sending an actual notification via Laravel's Notification Facade
-        // \Illuminate\Support\Facades\Log::info('Email Sent for event: ' . get_class($event));
-
         if ($event instanceof InvoiceCreated) {
-            // Mail::to($event->invoice->service->customer->user)->send(new InvoiceCreatedMail($event->invoice));
+            $customer = $event->invoice->customer;
+            if ($customer && $customer->email) {
+                Mail::to($customer->email)->send(new InvoiceNotificationMail($event->invoice));
+            }
         } elseif ($event instanceof InvoicePaid) {
-            // Mail::to($event->invoice->service->customer->user)->send(new InvoicePaidMail($event->invoice));
+            // Can add InvoicePaidMail later if needed
         } elseif ($event instanceof ServiceSuspended) {
-            // Mail::to($event->service->customer->user)->send(new ServiceSuspendedMail($event->service));
+            // Can add ServiceSuspendedMail later if needed
         } elseif ($event instanceof InvoiceReminderNeeded) {
-            // Mail::to($event->invoice->service->customer->user)->send(new InvoiceReminderMail($event->invoice));
+            $customer = $event->invoice->customer;
+            if ($customer && $customer->email) {
+                Mail::to($customer->email)->send(new InvoiceReminderMail($event->invoice));
+            }
         } elseif ($event instanceof InvoiceOverdueReminderNeeded) {
-            // Mail::to($event->invoice->service->customer->user)->send(new InvoiceOverdueMail($event->invoice));
+            $customer = $event->invoice->customer;
+            if ($customer && $customer->email) {
+                Mail::to($customer->email)->send(new InvoiceOverdueMail($event->invoice));
+            }
         }
     }
 }

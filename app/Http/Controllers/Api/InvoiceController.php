@@ -15,7 +15,7 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        $invoices = Invoice::with('service.customer')->paginate($request->get('limit', 15));
+        $invoices = Invoice::with('customer')->paginate($request->get('limit', 15));
 
         return response()->json($invoices);
     }
@@ -25,7 +25,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        return response()->json($invoice->load('service.customer', 'payments.verifier'));
+        return response()->json($invoice->load('customer', 'payments.verifier'));
     }
 
     /**

@@ -15,6 +15,7 @@ Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'ind
 Route::get('/widget/v1/billing.js', [\App\Http\Controllers\WidgetController::class, 'script'])->name('widget.script');
 Route::get('/portal/service/{token}', [\App\Http\Controllers\WidgetController::class, 'portal'])->name('widget.portal');
 Route::get('/portal/service/{token}/invoice/{invoice}', [\App\Http\Controllers\WidgetController::class, 'invoice'])->name('widget.invoice');
+Route::post('/portal/service/{token}/invoice/{invoice}/confirm', [\App\Http\Controllers\WidgetController::class, 'confirmPayment'])->name('widget.invoice.confirm');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -31,8 +32,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('customers', \App\Http\Controllers\CustomerController::class);
 
     Route::get('/invoices', [\App\Http\Controllers\InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/create', [\App\Http\Controllers\InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('/invoices', [\App\Http\Controllers\InvoiceController::class, 'store'])->name('invoices.store');
     Route::get('/invoices/{invoice}', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('invoices.show');
     Route::post('/invoices/{invoice}/pay', [\App\Http\Controllers\InvoiceController::class, 'pay'])->name('invoices.pay');
+    Route::post('/invoices/{invoice}/payments/{payment}/verify', [\App\Http\Controllers\InvoiceController::class, 'confirmPayment'])->name('invoices.payments.verify');
+    Route::post('/invoices/{invoice}/payments/{payment}/reject', [\App\Http\Controllers\InvoiceController::class, 'rejectPayment'])->name('invoices.payments.reject');
 
     // Settings
     Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'edit'])->name('settings.edit');

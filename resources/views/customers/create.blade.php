@@ -73,6 +73,7 @@
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                         <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active
                                         </option>
+                                        <option value="suspended" {{ old('status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
                                         <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>
                                             Inactive</option>
                                     </select>

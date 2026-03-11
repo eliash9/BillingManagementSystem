@@ -40,12 +40,23 @@ class AutoSuspendTest extends TestCase
 
         // Invoice created 10 days ago (due 10 days ago)
         $invoice = Invoice::create([
-            'service_id' => $service->id,
+            'customer_id' => $customer->id,
             'invoice_number' => 'INV-TEST-123',
             'amount' => 50000,
+            'subtotal' => 50000,
+            'tax_amount' => 0,
+            'tax_rate' => 0,
             'issue_date' => now()->subDays(17),
             'due_date' => now()->subDays(10),
             'status' => InvoiceStatus::Unpaid,
+        ]);
+
+        $invoice->items()->create([
+            'service_id' => $service->id,
+            'description' => 'Test Service Line',
+            'quantity' => 1,
+            'unit_price' => 50000,
+            'total' => 50000,
         ]);
 
         // Suspend limit is 7 days, the invoice is 10 days overdue.

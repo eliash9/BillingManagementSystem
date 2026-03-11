@@ -141,12 +141,13 @@
                                         <div class="text-sm text-gray-900">{{ $customer->company ?? '-' }}</div>
                                     </td>
                                     <td class="px-6 py-4">
-                                        @if($customer->status === 'active')
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">Active</span>
+                                        @php $status = $customer->status->value ?? $customer->status; @endphp
+                                        @if($status === 'active')
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">Active</span>
+                                        @elseif($status === 'suspended')
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">Suspended</span>
                                         @else
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">Inactive</span>
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">Inactive</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-right text-sm font-medium">
